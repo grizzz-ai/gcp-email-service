@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/tzhb/Documents/grizzz-ai/**)",
+      "Bash(node:*)",
+      "Bash(gcloud secrets list:*)",
+      "Bash(chmod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

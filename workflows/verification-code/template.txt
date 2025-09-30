@@ -1,0 +1,2 @@
+Your verification code is {{code}}{{#if expires_at}} (expires at {{expires_at}}){{/if}}.
+If you did not request this code, please contact support immediately.

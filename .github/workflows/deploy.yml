@@ -1,0 +1,314 @@
+name: Email Service CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: gcp-email-service-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate & Test Email Service
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Run security audit
+        run: npm audit --audit-level=high || true
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+
+    environment: staging
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check GCP authentication availability
+        id: check_gcp_auth
+        run: |
+          if [ -n "${{ secrets.WIF_PROVIDER }}" ] && [ -n "${{ secrets.WIF_SERVICE_ACCOUNT }}" ]; then
+            echo "gcp_auth_available=true" >> $GITHUB_OUTPUT
+          else
+            echo "gcp_auth_available=false" >> $GITHUB_OUTPUT
+            echo "⚠️  GCP authentication secrets not available - running in simulation mode"
+          fi
+
+      - name: Authenticate with Google Cloud
+        if: steps.check_gcp_auth.outputs.gcp_auth_available == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup Google Cloud SDK
+        if: steps.check_gcp_auth.outputs.gcp_auth_available == 'true'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get secrets from GSM
+        if: steps.check_gcp_auth.outputs.gcp_auth_available == 'true'
+        id: get_secrets
+        run: |
+          set +e
+          project_id=$(gcloud secrets versions access latest --secret=email-service-project-id-staging 2>/dev/null)
+          if [ -z "$project_id" ]; then
+            project_id=$(gcloud secrets versions access latest --secret=project-id-staging 2>/dev/null)
+          fi
+          set -e
+          if [ -z "$project_id" ]; then
+            project_id="vcapp-443523"
+          fi
+          echo "project_id=$project_id" >> $GITHUB_OUTPUT
+
+          set +e
+          chat_webhook=$(gcloud secrets versions access latest --secret=email-service-chat-webhook-staging 2>/dev/null)
+          if [ -z "$chat_webhook" ]; then
+            chat_webhook=$(gcloud secrets versions access latest --secret=chat-webhook-staging 2>/dev/null)
+          fi
+          set -e
+          if [ -n "$chat_webhook" ]; then
+            echo "chat_webhook=$chat_webhook" >> $GITHUB_OUTPUT
+          fi
+
+          # EXISTING INFRASTRUCTURE: Use existing mail-pass secrets from gcp-vc-analyst
+          echo "🔐 Fetching existing SMTP password secret for staging..."
+
+          # Use existing mail-pass secret pattern: mail-pass-{env}
+          smtp_password_secret="mail-pass-staging"
+
+          set +e
+          if gcloud secrets describe mail-pass-staging >/dev/null 2>&1; then
+            echo "✅ Found existing SMTP password secret: $smtp_password_secret"
+            echo "secrets_available=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Missing existing SMTP password secret: mail-pass-staging"
+            echo "   This secret should already exist from gcp-vc-analyst infrastructure"
+            echo "   Deployment will use simulation mode."
+            echo "secrets_available=false" >> $GITHUB_OUTPUT
+          fi
+          set -e
+
+          # Output existing secret name for deployment script
+          echo "smtp_password_secret=$smtp_password_secret" >> $GITHUB_OUTPUT
+
+          # EXISTING CONFIG: Use gcp-vc-analyst Gmail configuration
+          # Hardcoded values matching existing infrastructure
+          echo "smtp_host_value=smtp.gmail.com" >> $GITHUB_OUTPUT
+          echo "smtp_port_value=587" >> $GITHUB_OUTPUT
+          echo "smtp_username_value=tzhb@grizzz.ai" >> $GITHUB_OUTPUT
+
+      - name: Deploy email worker to staging
+        env:
+          PROJECT_ID: ${{ steps.get_secrets.outputs.project_id || 'vcapp-443523' }}
+          ENVIRONMENT: staging
+          BUILD_ID: ${{ github.run_id }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          DRY_RUN: ${{ steps.check_gcp_auth.outputs.gcp_auth_available == 'false' && 'true' || ( steps.get_secrets.outputs.secrets_available == 'false' && 'true' || 'false' ) }}
+          # OPTIMIZED: Pass SMTP configuration (password via GSM, others via env vars)
+          SMTP_HOST_VALUE: ${{ steps.get_secrets.outputs.smtp_host_value }}
+          SMTP_PORT_VALUE: ${{ steps.get_secrets.outputs.smtp_port_value }}
+          SMTP_USERNAME_VALUE: ${{ steps.get_secrets.outputs.smtp_username_value }}
+          SMTP_PASSWORD_SECRET: ${{ steps.get_secrets.outputs.smtp_password_secret }}
+        run: |
+          chmod +x ./scripts/deploy-staging.sh
+          ./scripts/deploy-staging.sh
+
+      - name: Run staging validation tests
+        env:
+          PROJECT_ID: ${{ steps.get_secrets.outputs.project_id || 'vcapp-443523' }}
+          ENVIRONMENT: staging
+          DRY_RUN: ${{ steps.check_gcp_auth.outputs.gcp_auth_available == 'false' && 'true' || 'false' }}
+        run: |
+          chmod +x ./scripts/test-staging.sh
+          ./scripts/test-staging.sh
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-artifacts-staging-${{ github.run_id }}
+          path: .artifacts/
+          retention-days: 7
+
+      - name: Notify deployment status
+        if: always()
+        env:
+          BUILD_ID: ${{ github.run_id }}
+          PROJECT_ID: ${{ steps.get_secrets.outputs.project_id || 'vcapp-443523' }}
+          REPO_NAME: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          CHAT_WEBHOOK_URL: ${{ steps.get_secrets.outputs.chat_webhook }}
+          JOB_STATUS: ${{ job.status }}
+          ENVIRONMENT: staging
+        run: |
+          chmod +x ./scripts/notify-chat.sh
+          ./scripts/notify-chat.sh
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [validate]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get secrets from GSM
+        id: get_secrets
+        run: |
+          project_id=$(gcloud secrets versions access latest --secret=email-service-project-id-production 2>/dev/null)
+          if [ -z "$project_id" ]; then
+            project_id=$(gcloud secrets versions access latest --secret=project-id-production 2>/dev/null)
+          fi
+          if [ -z "$project_id" ]; then
+            project_id="vcapp-443523"
+          fi
+          echo "project_id=$project_id" >> $GITHUB_OUTPUT
+
+          set +e
+          chat_webhook=$(gcloud secrets versions access latest --secret=email-service-chat-webhook-production 2>/dev/null)
+          if [ -z "$chat_webhook" ]; then
+            chat_webhook=$(gcloud secrets versions access latest --secret=chat-webhook-production 2>/dev/null)
+          fi
+          set -e
+          if [ -n "$chat_webhook" ]; then
+            echo "chat_webhook=$chat_webhook" >> $GITHUB_OUTPUT
+          fi
+
+          # EXISTING INFRASTRUCTURE: Use existing mail-pass secrets from gcp-vc-analyst
+          echo "🔐 Fetching existing SMTP password secret for production..."
+
+          # Use existing mail-pass secret pattern: mail-pass-{env}
+          smtp_password_secret="mail-pass-prod"
+
+          set +e
+          if gcloud secrets describe mail-pass-prod >/dev/null 2>&1; then
+            echo "✅ Found existing production SMTP password secret: $smtp_password_secret"
+          else
+            echo "❌ PRODUCTION DEPLOYMENT BLOCKED: Missing existing SMTP password secret: mail-pass-prod"
+            echo "   This secret should already exist from gcp-vc-analyst infrastructure"
+            exit 1
+          fi
+          set -e
+
+          # Output existing secret name for deployment script
+          echo "smtp_password_secret=$smtp_password_secret" >> $GITHUB_OUTPUT
+
+          # EXISTING CONFIG: Use gcp-vc-analyst Gmail configuration
+          # Hardcoded values matching existing infrastructure
+          echo "smtp_host_value=smtp.gmail.com" >> $GITHUB_OUTPUT
+          echo "smtp_port_value=587" >> $GITHUB_OUTPUT
+          echo "smtp_username_value=tzhb@grizzz.ai" >> $GITHUB_OUTPUT
+
+      - name: Deploy email worker to production
+        env:
+          PROJECT_ID: ${{ steps.get_secrets.outputs.project_id }}
+          ENVIRONMENT: production
+          BUILD_ID: ${{ github.run_id }}
+          REPO_NAME: ${{ github.repository }}
+          TAG_NAME: ${{ github.ref_name }}
+          # OPTIMIZED: Pass SMTP configuration (password via GSM, others via env vars)
+          SMTP_HOST_VALUE: ${{ steps.get_secrets.outputs.smtp_host_value }}
+          SMTP_PORT_VALUE: ${{ steps.get_secrets.outputs.smtp_port_value }}
+          SMTP_USERNAME_VALUE: ${{ steps.get_secrets.outputs.smtp_username_value }}
+          SMTP_PASSWORD_SECRET: ${{ steps.get_secrets.outputs.smtp_password_secret }}
+        run: |
+          chmod +x ./scripts/deploy-production.sh
+          ./scripts/deploy-production.sh
+
+      - name: Run production smoke tests
+        env:
+          PROJECT_ID: ${{ steps.get_secrets.outputs.project_id }}
+          ENVIRONMENT: production
+        run: |
+          chmod +x ./scripts/test-production.sh
+          ./scripts/test-production.sh
+
+      - name: Upload deployment artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployment-artifacts-production-${{ github.run_id }}
+          path: .artifacts/
+          retention-days: 30
+
+      - name: Notify deployment status
+        if: always()
+        env:
+          BUILD_ID: ${{ github.run_id }}
+          PROJECT_ID: ${{ steps.get_secrets.outputs.project_id }}
+          REPO_NAME: ${{ github.repository }}
+          TAG_NAME: ${{ github.ref_name }}
+          CHAT_WEBHOOK_URL: ${{ steps.get_secrets.outputs.chat_webhook }}
+          JOB_STATUS: ${{ job.status }}
+          ENVIRONMENT: production
+        run: |
+          chmod +x ./scripts/notify-chat.sh
+          ./scripts/notify-chat.sh

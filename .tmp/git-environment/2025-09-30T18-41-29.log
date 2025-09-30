@@ -1,0 +1,4 @@
+{"args":1,"level":"info","message":"Main action execution started","pid":63531,"script":"git-environment","timestamp":"2025-09-30T18:41:29.400Z"}
+{"level":"info","message":"Starting git environment discovery","pid":63531,"script":"git-environment","timestamp":"2025-09-30T18:41:29.400Z"}
+{"error":"this.executeGitCommand is not a function","level":"debug","message":"Not a git repository","pid":63531,"script":"git-environment","timestamp":"2025-09-30T18:41:29.400Z"}
+{"executionTime":"1ms","level":"info","message":"Main action execution completed","pid":63531,"script":"git-environment","timestamp":"2025-09-30T18:41:29.400Z"}

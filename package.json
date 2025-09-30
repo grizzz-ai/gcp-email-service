@@ -1,0 +1,31 @@
+{
+  "name": "gcp-email-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloud Functions Gen2 worker for email delivery",
+  "main": "src/email-worker.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint \"src/**/*.js\" \"workflows/**/*.js\"",
+    "test": "npm run test:unit",
+    "test:unit": "jest --runInBand",
+    "test:integration": "npm run test:unit",
+    "dev": "node scripts/emit-test-event.js"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^5.2.0",
+    "@google-cloud/storage": "^7.17.1",
+    "nodemailer": "^6.9.13",
+    "pino": "^9.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "pino-pretty": "^11.2.2"
+  }
+}

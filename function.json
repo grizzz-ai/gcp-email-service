@@ -1,0 +1,23 @@
+{
+  "name": "email-worker",
+  "description": "Processes email delivery events published by gcp-auth-gateway",
+  "runtime": "nodejs22",
+  "entryPoint": "handleEmailEvent",
+  "triggerType": "pubsub",
+  "topic": "email-delivery",
+  "gen2": true,
+  "minInstances": 0,
+  "maxInstances": 10,
+  "secrets": [],
+  "environmentVariables": {
+    "MAIL_FROM": "no-reply@grizz.ai"
+  },
+  "permissions": [
+    {
+      "resourceType": "project",
+      "resource": "vcapp-443523",
+      "role": "roles/secretmanager.secretAccessor"
+    }
+  ],
+  "testCommand": "npm test"
+}
