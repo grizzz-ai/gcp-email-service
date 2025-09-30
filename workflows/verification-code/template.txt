@@ -1,0 +1,18 @@
+🔐 GRIZZ AI - Account Verification
+
+Hello,
+
+Please verify your {{provider}} account by entering the following verification code:
+
+VERIFICATION CODE: {{verification_code}}
+
+⚠️ SECURITY NOTICE:
+- This code expires in {{expires_at}}
+- Never share this code with anyone
+- GRIZZ AI will never ask for your verification code
+
+If you didn't request this verification, please ignore this email or contact our support team.
+
+---
+GRIZZ AI Platform
+Support: support@grizzz.ai

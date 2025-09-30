@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Verification</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+        .verification-code {
+            background-color: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+        }
+        .warning {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 20px 0;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🔐 GRIZZ AI</div>
+            <h1>Verify Your {{provider}} Account</h1>
+            <p>Complete your account linking by entering the verification code below.</p>
+        </div>
+
+        <div class="verification-code">
+            <p style="margin: 0 0 10px 0; color: #6b7280;">Your verification code is:</p>
+            <div class="code">{{verification_code}}</div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Security Notice:</strong> This code expires in {{expires_at}}.
+            Never share this code with anyone. GRIZZ AI will never ask for your verification code.
+        </div>
+
+        <p>If you didn't request this verification, please ignore this email or contact our support team.</p>
+
+        <div class="footer">
+            <p>This email was sent by GRIZZ AI Platform</p>
+            <p>If you have questions, please contact: support@grizzz.ai</p>
+        </div>
+    </div>
+</body>
+</html>

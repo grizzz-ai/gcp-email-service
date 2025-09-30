@@ -1,0 +1,15 @@
+{
+  "runtime": "nodejs22",
+  "entry_point": "handleEmailEvent",
+  "trigger": {
+    "event_type": "providers/cloud.pubsub/eventTypes/topic.publish",
+    "resource": "projects/vcapp-443523/topics/email-delivery"
+  },
+  "timeout": "60s",
+  "memory": "512MB",
+  "environment_variables": {
+    "LOG_LEVEL": "info",
+    "MAX_ATTACHMENT_SIZE_BYTES": "26214400",
+    "MAX_TOTAL_EMAIL_SIZE_BYTES": "52428800"
+  }
+}

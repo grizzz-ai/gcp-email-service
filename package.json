@@ -1,0 +1,37 @@
+{
+  "name": "gcp-email-service",
+  "version": "1.0.0",
+  "description": "Enterprise email service with Pub/Sub, templates, and GCS attachments",
+  "main": "src/email-worker.js",
+  "scripts": {
+    "start": "node src/email-worker.js",
+    "dev": "node scripts/emit-test-event.js",
+    "test": "jest",
+    "lint": "eslint src/ --ext .js",
+    "deploy": "gcloud functions deploy email-worker --gen2 --runtime=nodejs22 --source=. --entry-point=handleEmailEvent"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^4.1.0",
+    "@google-cloud/storage": "^7.7.0",
+    "@google-cloud/functions-framework": "^3.3.0",
+    "nodemailer": "^6.9.8",
+    "joi": "^17.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "email",
+    "pubsub",
+    "gcp",
+    "cloud-functions",
+    "attachments",
+    "templates"
+  ],
+  "author": "GRIZZ AI",
+  "license": "MIT"
+}
