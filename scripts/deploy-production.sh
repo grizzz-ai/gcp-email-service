@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-PROJECT_ID=${PROJECT_ID:-"vcapp-443523"}
+PROJECT_ID=${PROJECT_ID:-$(gcloud secrets versions access latest --secret="project-id-production" 2>/dev/null || echo "vcapp-443523")}
 ENVIRONMENT=${ENVIRONMENT:-"production"}
 REGION=${REGION:-"us-central1"}
 FUNCTION_NAME=${FUNCTION_NAME:-"email-worker"}
@@ -50,7 +50,6 @@ fi
 # Environment variables for the function
 ENV_VARS=(
   "ENVIRONMENT=${ENVIRONMENT}"
-  "PROJECT_ID=${PROJECT_ID}"
   "PUBSUB_TOPIC=${PUBSUB_TOPIC}"
 )
 
@@ -67,8 +66,9 @@ ENV_VARS+=("SMTP_HOST=${SMTP_HOST_VALUE}")
 ENV_VARS+=("SMTP_PORT=${SMTP_PORT_VALUE}")
 ENV_VARS+=("SMTP_USERNAME=${SMTP_USERNAME_VALUE}")
 
-# OPTIMIZED: Only SMTP password via GSM secret (sensitive)
+# OPTIMIZED: PROJECT_ID and SMTP password via GSM secrets (sensitive)
 SECRET_MAPPINGS=(
+  "PROJECT_ID=project-id-production:latest"
   "SMTP_PASSWORD=${SMTP_PASSWORD_SECRET}:latest"
 )
 
