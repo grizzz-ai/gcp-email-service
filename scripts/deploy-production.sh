@@ -23,18 +23,7 @@ echo "  Pub/Sub Topic: ${PUBSUB_TOPIC}"
 echo "  Build ID:      ${BUILD_ID}"
 echo "  Tag:           ${TAG_NAME}"
 
-# OPTIMIZED: Verify SMTP configuration is provided (password via secret, others via env vars)
-if [[ -z "${SMTP_PASSWORD_SECRET:-}" ]]; then
-  echo "❌ PRODUCTION DEPLOYMENT BLOCKED: Missing SMTP password secret environment variable"
-  echo "   Required: SMTP_PASSWORD_SECRET"
-  exit 1
-fi
-
-if [[ -z "${SMTP_HOST_VALUE:-}" ]] || [[ -z "${SMTP_PORT_VALUE:-}" ]] || [[ -z "${SMTP_USERNAME_VALUE:-}" ]]; then
-  echo "❌ PRODUCTION DEPLOYMENT BLOCKED: Missing SMTP configuration environment variables"
-  echo "   Required: SMTP_HOST_VALUE, SMTP_PORT_VALUE, SMTP_USERNAME_VALUE"
-  exit 1
-fi
+# Gmail SMTP configuration is hardcoded (non-sensitive, never changes)
 
 # Verify GCP authentication
 if ! command -v gcloud >/dev/null 2>&1; then
@@ -61,15 +50,15 @@ if [[ -n "${LOG_LEVEL:-}" ]]; then
   ENV_VARS+=("LOG_LEVEL=${LOG_LEVEL}")
 fi
 
-# OPTIMIZED: SMTP host/port/username via environment variables (non-sensitive)
-ENV_VARS+=("SMTP_HOST=${SMTP_HOST_VALUE}")
-ENV_VARS+=("SMTP_PORT=${SMTP_PORT_VALUE}")
-ENV_VARS+=("SMTP_USERNAME=${SMTP_USERNAME_VALUE}")
+# HARDCODED: Gmail SMTP settings (non-sensitive, never change)
+ENV_VARS+=("SMTP_HOST=smtp.gmail.com")
+ENV_VARS+=("SMTP_PORT=587")
+ENV_VARS+=("SMTP_USERNAME=tzhb@grizzz.ai")
 
 # OPTIMIZED: PROJECT_ID and SMTP password via GSM secrets (sensitive)
 SECRET_MAPPINGS=(
   "PROJECT_ID=project-id-production:latest"
-  "SMTP_PASSWORD=${SMTP_PASSWORD_SECRET}:latest"
+  "SMTP_PASSWORD=mail-pass-prod:latest"
 )
 
 # Optional secrets

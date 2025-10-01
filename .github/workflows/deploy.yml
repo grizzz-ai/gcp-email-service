@@ -130,14 +130,7 @@ jobs:
           fi
           set -e
 
-          # Output existing secret name for deployment script
-          echo "smtp_password_secret=$smtp_password_secret" >> $GITHUB_OUTPUT
-
-          # EXISTING CONFIG: Use gcp-vc-analyst Gmail configuration
-          # Hardcoded values matching existing infrastructure
-          echo "smtp_host_value=smtp.gmail.com" >> $GITHUB_OUTPUT
-          echo "smtp_port_value=587" >> $GITHUB_OUTPUT
-          echo "smtp_username_value=tzhb@grizzz.ai" >> $GITHUB_OUTPUT
+          # Gmail SMTP configuration is hardcoded in deployment scripts
 
       - name: Deploy email worker to staging
         env:
@@ -147,11 +140,7 @@ jobs:
           REPO_NAME: ${{ github.repository }}
           BRANCH_NAME: ${{ github.ref_name }}
           DRY_RUN: ${{ steps.check_gcp_auth.outputs.gcp_auth_available == 'false' && 'true' || ( steps.get_secrets.outputs.secrets_available == 'false' && 'true' || 'false' ) }}
-          # OPTIMIZED: Pass SMTP configuration (password via GSM, others via env vars)
-          SMTP_HOST_VALUE: ${{ steps.get_secrets.outputs.smtp_host_value }}
-          SMTP_PORT_VALUE: ${{ steps.get_secrets.outputs.smtp_port_value }}
-          SMTP_USERNAME_VALUE: ${{ steps.get_secrets.outputs.smtp_username_value }}
-          SMTP_PASSWORD_SECRET: ${{ steps.get_secrets.outputs.smtp_password_secret }}
+          # SMTP configuration is now hardcoded in deployment scripts
         run: |
           chmod +x ./scripts/deploy-staging.sh
           ./scripts/deploy-staging.sh

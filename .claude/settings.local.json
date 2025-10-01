@@ -4,7 +4,14 @@
       "Read(//Users/tzhb/Documents/grizzz-ai/**)",
       "Bash(node:*)",
       "Bash(gcloud secrets list:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(gh api:*)",
+      "Bash(gh run view:*)",
+      "Bash(gcloud functions describe:*)",
+      "Bash(gcloud functions:*)",
+      "Bash(./scripts/test-staging.sh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

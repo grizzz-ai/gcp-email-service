@@ -73,24 +73,18 @@ if [[ -n "${LOG_LEVEL:-}" ]]; then
   ENV_VARS+=("LOG_LEVEL=${LOG_LEVEL}")
 fi
 
-# OPTIMIZED: SMTP host/port/username via environment variables (non-sensitive)
-if [[ -n "${SMTP_HOST_VALUE:-}" ]]; then
-  ENV_VARS+=("SMTP_HOST=${SMTP_HOST_VALUE}")
-fi
-if [[ -n "${SMTP_PORT_VALUE:-}" ]]; then
-  ENV_VARS+=("SMTP_PORT=${SMTP_PORT_VALUE}")
-fi
-if [[ -n "${SMTP_USERNAME_VALUE:-}" ]]; then
-  ENV_VARS+=("SMTP_USERNAME=${SMTP_USERNAME_VALUE}")
-fi
+# HARDCODED: Gmail SMTP settings (non-sensitive, never change)
+ENV_VARS+=("SMTP_HOST=smtp.gmail.com")
+ENV_VARS+=("SMTP_PORT=587")
+ENV_VARS+=("SMTP_USERNAME=tzhb@grizzz.ai")
 
 # OPTIMIZED: PROJECT_ID and SMTP password via GSM secrets (sensitive)
-SECRET_MAPPINGS=("PROJECT_ID=project-id-staging:latest")
+SECRET_MAPPINGS=(
+  "PROJECT_ID=project-id-staging:latest"
+  "SMTP_PASSWORD=mail-pass-staging:latest"
+)
 if [[ -n "${MAIL_FROM_SECRET:-}" ]]; then
   SECRET_MAPPINGS+=("MAIL_FROM=${MAIL_FROM_SECRET}:latest")
-fi
-if [[ -n "${SMTP_PASSWORD_SECRET:-}" ]]; then
-  SECRET_MAPPINGS+=("SMTP_PASSWORD=${SMTP_PASSWORD_SECRET}:latest")
 fi
 
 ENV_FLAGS=("--set-env-vars" "$(IFS=,; echo "${ENV_VARS[*]}")")

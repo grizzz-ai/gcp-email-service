@@ -46,7 +46,7 @@ if [[ -z "${FUNCTION_URL}" ]]; then
   exit 1
 fi
 
-START_TIME=$(date +%s%3N)
+START_TIME=$(date +%s)
 
 # Test 1: Function health check (via logs - functions don't have direct HTTP endpoint)
 echo "🔍 Test 1: Function deployment validation"
@@ -87,7 +87,7 @@ FUNCTION_ENV=$(gcloud functions describe "${DEPLOYMENT_NAME}" \
   --format="value(serviceConfig.environmentVariables)" 2>/dev/null || echo "")
 
 # Basic required environment variables
-REQUIRED_ENV_VARS=("ENVIRONMENT" "PROJECT_ID")
+REQUIRED_ENV_VARS=("ENVIRONMENT")
 for var in "${REQUIRED_ENV_VARS[@]}"; do
   if [[ "${FUNCTION_ENV}" != *"${var}"* ]]; then
     echo "❌ Required environment variable ${var} not found in function config"
@@ -110,22 +110,30 @@ if [[ ${#MISSING_SMTP_ENV[@]} -gt 0 ]]; then
   exit 1
 fi
 
-# Test 4: Check SMTP password secret is properly configured
-echo "🔍 Test 4: SMTP password secret validation"
+# Test 4: Check required secrets are properly configured
+echo "🔍 Test 4: Required secrets validation"
 FUNCTION_SECRETS=$(gcloud functions describe "${DEPLOYMENT_NAME}" \
   --region="${REGION}" \
   --project="${PROJECT_ID}" \
   --format="value(serviceConfig.secretEnvironmentVariables)" 2>/dev/null || echo "")
 
-if [[ "${FUNCTION_SECRETS}" != *"SMTP_PASSWORD"* ]]; then
-  echo "❌ Missing required SMTP_PASSWORD secret binding"
-  echo "   Function will fail at startup due to missing SMTP password"
+REQUIRED_SECRETS=("PROJECT_ID" "SMTP_PASSWORD")
+MISSING_SECRETS=()
+for secret in "${REQUIRED_SECRETS[@]}"; do
+  if [[ "${FUNCTION_SECRETS}" != *"${secret}"* ]]; then
+    MISSING_SECRETS+=("${secret}")
+  fi
+done
+
+if [[ ${#MISSING_SECRETS[@]} -gt 0 ]]; then
+  echo "❌ Missing required secret bindings: ${MISSING_SECRETS[*]}"
+  echo "   Function will fail at startup due to missing secrets"
   exit 1
 else
-  echo "✅ SMTP password secret properly configured"
+  echo "✅ All required secrets properly configured: ${REQUIRED_SECRETS[*]}"
 fi
 
-END_TIME=$(date +%s%3N)
+END_TIME=$(date +%s)
 TOTAL_TIME=$((END_TIME - START_TIME))
 
 # Generate test results
@@ -135,7 +143,7 @@ cat > .artifacts/staging-test-results.json <<EOF_RESULTS
   "environment": "${ENVIRONMENT}",
   "function_name": "${DEPLOYMENT_NAME}",
   "function_url": "${FUNCTION_URL}",
-  "response_time_ms": ${TOTAL_TIME},
+  "response_time_seconds": ${TOTAL_TIME},
   "tests_passed": true,
   "version": "$(git rev-parse HEAD)",
   "test_mode": "live",
@@ -144,12 +152,12 @@ cat > .artifacts/staging-test-results.json <<EOF_RESULTS
     {"name": "function_deployment", "status": "passed", "state": "${FUNCTION_STATUS}"},
     {"name": "startup_errors", "status": "passed", "recent_errors": $([ -n "${RECENT_ERRORS}" ] && echo "true" || echo "false")},
     {"name": "environment_config", "status": "passed", "required_vars_found": ${#REQUIRED_ENV_VARS[@]}, "smtp_env_vars_found": ${#SMTP_ENV_VARS[@]}},
-    {"name": "smtp_password_secret", "status": "passed", "secret_bound": true}
+    {"name": "required_secrets", "status": "passed", "secrets_bound": ${#REQUIRED_SECRETS[@]}}
   ]
 }
 EOF_RESULTS
 
 echo "✅ All staging validation tests passed"
-echo "⏱️  Total validation time: ${TOTAL_TIME}ms"
+echo "⏱️  Total validation time: ${TOTAL_TIME}s"
 echo "📋 Function status: ${FUNCTION_STATUS}"
-echo "🔐 SMTP configuration: 3 env vars + 1 secret (optimized)"
+echo "🔐 Configuration: 3 SMTP env vars + 2 secrets (PROJECT_ID + SMTP_PASSWORD)"

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-10-01T15:49:03Z",
+  "environment": "staging",
+  "function_name": "email-worker-staging",
+  "function_url": "https://email-worker-staging-fbgikgl32a-uc.a.run.app",
+  "response_time_seconds": 2,
+  "tests_passed": true,
+  "version": "8227ed35ce783207b54f42431c267dbffd5f57d7",
+  "test_mode": "live",
+  "smtp_config_model": "optimized_hybrid",
+  "tests": [
+    {"name": "function_deployment", "status": "passed", "state": "ACTIVE"},
+    {"name": "startup_errors", "status": "passed", "recent_errors": false},
+    {"name": "environment_config", "status": "passed", "required_vars_found": 1, "smtp_env_vars_found": 3},
+    {"name": "required_secrets", "status": "passed", "secrets_bound": 2}
+  ]
+}

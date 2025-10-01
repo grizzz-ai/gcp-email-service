@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-10-01T15:46:40Z",
+  "build_id": "1759333540",
+  "environment": "staging",
+  "project_id": "vcapp-443523",
+  "region": "us-central1",
+  "function_name": "email-worker-staging",
+  "function_url": "https://email-worker-staging-fbgikgl32a-uc.a.run.app",
+  "pubsub_topic": "email-delivery",
+  "version": "8227ed35ce783207b54f42431c267dbffd5f57d7",
+  "branch": "main"
+}
