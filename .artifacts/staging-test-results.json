@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-10-01T15:49:03Z",
+  "timestamp": "2025-10-02T03:20:09Z",
   "environment": "staging",
   "function_name": "email-worker-staging",
   "function_url": "https://email-worker-staging-fbgikgl32a-uc.a.run.app",
   "response_time_seconds": 2,
   "tests_passed": true,
-  "version": "8227ed35ce783207b54f42431c267dbffd5f57d7",
+  "version": "b1ba2ecae786419e09603da7bcf15fbf33a46ce7",
   "test_mode": "live",
   "smtp_config_model": "optimized_hybrid",
   "tests": [

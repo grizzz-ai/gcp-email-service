@@ -11,7 +11,10 @@
       "Bash(gcloud functions:*)",
       "Bash(./scripts/test-staging.sh:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(gh run list:*)",
+      "Bash(git push:*)",
+      "Bash(gh issue list:*)"
     ],
     "deny": [],
     "ask": []
