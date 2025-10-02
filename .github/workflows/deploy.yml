@@ -112,25 +112,8 @@ jobs:
             echo "chat_webhook=$chat_webhook" >> $GITHUB_OUTPUT
           fi
 
-          # EXISTING INFRASTRUCTURE: Use existing mail-pass secrets from gcp-vc-analyst
-          echo "🔐 Fetching existing SMTP password secret for staging..."
-
-          # Use existing mail-pass secret pattern: mail-pass-{env}
-          smtp_password_secret="mail-pass-staging"
-
-          set +e
-          if gcloud secrets describe mail-pass-staging >/dev/null 2>&1; then
-            echo "✅ Found existing SMTP password secret: $smtp_password_secret"
-            echo "secrets_available=true" >> $GITHUB_OUTPUT
-          else
-            echo "❌ Missing existing SMTP password secret: mail-pass-staging"
-            echo "   This secret should already exist from gcp-vc-analyst infrastructure"
-            echo "   Deployment will use simulation mode."
-            echo "secrets_available=false" >> $GITHUB_OUTPUT
-          fi
-          set -e
-
-          # Gmail SMTP configuration is hardcoded in deployment scripts
+          # SMTP secrets are now hardcoded in deployment scripts
+          echo "secrets_available=true" >> $GITHUB_OUTPUT
 
       - name: Deploy email worker to staging
         env:
