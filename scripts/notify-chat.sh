@@ -37,7 +37,7 @@ ENV_LABEL=$([[ "$ENVIRONMENT" = "production" ]] && echo "PRODUCTION" || echo "ST
 STATUS_LABEL=$([[ "$STATUS_LOWER" = "success" ]] && echo "SUCCESS" || echo "FAILED")
 
 if [ "$STATUS_LOWER" = "success" ]; then
-  HEADER_ICON=$([[ "$ENVIRONMENT" = "production" ]] && echo "🚀" || echo "📧")
+  HEADER_ICON=$([[ "$ENVIRONMENT" = "production" ]] && echo "🚀" || echo "🔱")
   STATUS_EMOJI="✅"
 else
   HEADER_ICON="❌"
@@ -96,7 +96,6 @@ fi
 
 # Build comprehensive rich text message with backticks for highlighting
 TEXT_FALLBACK="$TITLE\n"
-TEXT_FALLBACK="${TEXT_FALLBACK}================================================\n"
 TEXT_FALLBACK="${TEXT_FALLBACK}📧 Email Delivery Service\n"
 TEXT_FALLBACK="${TEXT_FALLBACK}📨 Pub/Sub → SMTP with GCS Attachments\n\n"
 
@@ -135,13 +134,13 @@ if [ -n "$SERVICE_HEALTH" ]; then
   TEXT_FALLBACK="${TEXT_FALLBACK}   • 🌐 Email Worker: $SERVICE_HEALTH\n\n"
 fi
 
-# Links section
+# Links section (inline text, no URLs to prevent preview cards)
 TEXT_FALLBACK="${TEXT_FALLBACK}🔗 Links:\n"
 if [ -n "$FUNCTION_URL" ]; then
-  TEXT_FALLBACK="${TEXT_FALLBACK}   • 🌐 Service: $FUNCTION_URL\n"
+  TEXT_FALLBACK="${TEXT_FALLBACK}   • 🌐 Service: \`${FUNCTION_URL}\`\n"
 fi
-TEXT_FALLBACK="${TEXT_FALLBACK}   • 🏗️ Build Logs: $BUILD_URL\n"
-TEXT_FALLBACK="${TEXT_FALLBACK}   • 📊 Repository: $REPO_URL\n\n"
+TEXT_FALLBACK="${TEXT_FALLBACK}   • 🏗️ Build: \`#${BUILD_ID}\`\n"
+TEXT_FALLBACK="${TEXT_FALLBACK}   • 📊 Repo: \`${REPO_NAME}\`\n\n"
 
 # Email service features section
 case "$NOTIFY_CONTEXT" in
