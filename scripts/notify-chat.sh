@@ -134,13 +134,13 @@ if [ -n "$SERVICE_HEALTH" ]; then
   TEXT_FALLBACK="${TEXT_FALLBACK}   • 🌐 Email Worker: $SERVICE_HEALTH\n\n"
 fi
 
-# Links section
+# Links section (wrapped in <> to prevent preview cards)
 TEXT_FALLBACK="${TEXT_FALLBACK}🔗 Links:\n"
 if [ -n "$FUNCTION_URL" ]; then
-  TEXT_FALLBACK="${TEXT_FALLBACK}   • 🌐 Service: ${FUNCTION_URL}\n"
+  TEXT_FALLBACK="${TEXT_FALLBACK}   • 🌐 Service: <${FUNCTION_URL}>\n"
 fi
-TEXT_FALLBACK="${TEXT_FALLBACK}   • 🏗️ Build Logs: ${BUILD_URL}\n"
-TEXT_FALLBACK="${TEXT_FALLBACK}   • 📊 Repository: ${REPO_URL}\n\n"
+TEXT_FALLBACK="${TEXT_FALLBACK}   • 🏗️ Build Logs: <${BUILD_URL}>\n"
+TEXT_FALLBACK="${TEXT_FALLBACK}   • 📊 Repository: <${REPO_URL}>\n\n"
 
 # Email service features section
 case "$NOTIFY_CONTEXT" in
