@@ -14,7 +14,9 @@
       "Bash(git commit:*)",
       "Bash(gh run list:*)",
       "Bash(git push:*)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(gcloud iam service-accounts:*)",
+      "Bash(gcloud projects get-iam-policy:*)"
     ],
     "deny": [],
     "ask": []
