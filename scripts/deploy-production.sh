@@ -53,7 +53,7 @@ fi
 # HARDCODED: Gmail SMTP settings (non-sensitive, never change)
 ENV_VARS+=("SMTP_HOST=smtp.gmail.com")
 ENV_VARS+=("SMTP_PORT=587")
-ENV_VARS+=("SMTP_USERNAME=tzhb@grizzz.ai")
+ENV_VARS+=("SMTP_USERNAME=timur.tazhbayev@grizz.miami")
 
 # OPTIMIZED: PROJECT_ID and SMTP password via GSM secrets (sensitive)
 SECRET_MAPPINGS=(
