@@ -21,11 +21,12 @@ The following infrastructure is already set up in project `vcapp-443523`:
 
 ### Service Account
 - **Email**: `github-actions-sa@vcapp-443523.iam.gserviceaccount.com`
-- **Roles**:
-  - `roles/cloudfunctions.admin`
-  - `roles/iam.serviceAccountUser`
+- **Project-level Roles**:
+  - `roles/cloudfunctions.developer`
+  - `roles/run.admin`
   - `roles/secretmanager.secretAccessor`
-  - `roles/storage.objectViewer`
+- **Service Account Impersonation**:
+  - `roles/iam.serviceAccountUser` on `email-worker-runtime@vcapp-443523.iam.gserviceaccount.com`
 
 ## Adding New Repository
 
@@ -47,7 +48,27 @@ gcloud iam workload-identity-pools providers update-oidc github-provider \
   --attribute-condition="assertion.repository=='grizzz-ai/sgr-github-orchestrator' || assertion.repository=='grizzz-ai/gcp-auth-gateway' || assertion.repository=='grizzz-ai/gcr-vc-rag-ingestion' || assertion.repository=='grizzz-ai/gcr-vc-rag-api' || assertion.repository=='grizzz-ai/gcr-vc-agent-orchestrator' || assertion.repository=='grizzz-ai/vc-rag-agent-ui' || assertion.repository=='grizzz-ai/supabase-vc-analyst' || assertion.repository=='grizzz-ai/gcp-email-service' || assertion.repository=='grizzz-ai/YOUR-NEW-REPO'"
 ```
 
-### 2. Configure GitHub Repository Secrets
+### 2. Grant Service Account Impersonation (if using custom runtime SA)
+
+If your Cloud Function uses a custom runtime service account (not `github-actions-sa`), grant impersonation rights:
+
+```bash
+# Grant github-actions-sa permission to impersonate your runtime SA
+gcloud iam service-accounts add-iam-policy-binding YOUR-RUNTIME-SA@vcapp-443523.iam.gserviceaccount.com \
+  --member="serviceAccount:github-actions-sa@vcapp-443523.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser" \
+  --project=vcapp-443523
+
+# Example: for email-worker-runtime SA
+gcloud iam service-accounts add-iam-policy-binding email-worker-runtime@vcapp-443523.iam.gserviceaccount.com \
+  --member="serviceAccount:github-actions-sa@vcapp-443523.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser" \
+  --project=vcapp-443523
+```
+
+**Note**: Skip this step if using `github-actions-sa` as the runtime service account directly.
+
+### 3. Configure GitHub Repository Secrets
 
 Add the following secrets to your GitHub repository:
 
@@ -59,7 +80,7 @@ gh secret set WIF_PROVIDER --body "projects/788968930921/locations/global/worklo
 gh secret set WIF_SERVICE_ACCOUNT --body "github-actions-sa@vcapp-443523.iam.gserviceaccount.com"
 ```
 
-### 3. GitHub Actions Workflow Configuration
+### 4. GitHub Actions Workflow Configuration
 
 Add the authentication step to your workflow:
 
