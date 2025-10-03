@@ -22,11 +22,12 @@ The following infrastructure is already set up in project `vcapp-443523`:
 ### Service Account
 - **Email**: `github-actions-sa@vcapp-443523.iam.gserviceaccount.com`
 - **Project-level Roles**:
-  - `roles/cloudfunctions.developer`
-  - `roles/run.admin`
-  - `roles/secretmanager.secretAccessor`
-- **Service Account Impersonation**:
-  - `roles/iam.serviceAccountUser` on `email-worker-runtime@vcapp-443523.iam.gserviceaccount.com`
+  - `roles/cloudfunctions.developer` - deploy and manage Cloud Functions
+  - `roles/run.admin` - deploy and manage Cloud Run services
+  - `roles/secretmanager.secretAccessor` - read secrets from GSM
+- **Service Account Impersonation** (for email-worker-runtime):
+  - `roles/iam.serviceAccountUser` - allows using email-worker-runtime SA
+  - `roles/iam.serviceAccountTokenCreator` - allows generating access tokens for email-worker-runtime SA
 
 ## Adding New Repository
 
@@ -50,23 +51,36 @@ gcloud iam workload-identity-pools providers update-oidc github-provider \
 
 ### 2. Grant Service Account Impersonation (if using custom runtime SA)
 
-If your Cloud Function uses a custom runtime service account (not `github-actions-sa`), grant impersonation rights:
+If your Cloud Function uses a custom runtime service account (not `github-actions-sa`), grant **both** required impersonation roles:
 
 ```bash
-# Grant github-actions-sa permission to impersonate your runtime SA
+# Required Role 1: serviceAccountUser (allows using the SA)
 gcloud iam service-accounts add-iam-policy-binding YOUR-RUNTIME-SA@vcapp-443523.iam.gserviceaccount.com \
   --member="serviceAccount:github-actions-sa@vcapp-443523.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountUser" \
   --project=vcapp-443523
 
-# Example: for email-worker-runtime SA
+# Required Role 2: serviceAccountTokenCreator (allows generating access tokens)
+gcloud iam service-accounts add-iam-policy-binding YOUR-RUNTIME-SA@vcapp-443523.iam.gserviceaccount.com \
+  --member="serviceAccount:github-actions-sa@vcapp-443523.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountTokenCreator" \
+  --project=vcapp-443523
+
+# Example: Complete setup for email-worker-runtime SA
 gcloud iam service-accounts add-iam-policy-binding email-worker-runtime@vcapp-443523.iam.gserviceaccount.com \
   --member="serviceAccount:github-actions-sa@vcapp-443523.iam.gserviceaccount.com" \
   --role="roles/iam.serviceAccountUser" \
   --project=vcapp-443523
+
+gcloud iam service-accounts add-iam-policy-binding email-worker-runtime@vcapp-443523.iam.gserviceaccount.com \
+  --member="serviceAccount:github-actions-sa@vcapp-443523.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountTokenCreator" \
+  --project=vcapp-443523
 ```
 
-**Note**: Skip this step if using `github-actions-sa` as the runtime service account directly.
+**Security Note**: These roles are granted at the **service account level** (not project-wide), limiting the scope to only the specific runtime SA. This follows the principle of least privilege.
+
+**Alternative**: Skip this step if using `github-actions-sa` as the runtime service account directly in deployment scripts.
 
 ### 3. Configure GitHub Repository Secrets
 
