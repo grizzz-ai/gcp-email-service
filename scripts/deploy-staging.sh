@@ -93,7 +93,7 @@ if [[ ${#SECRET_MAPPINGS[@]} -gt 0 ]]; then
   SECRET_FLAGS=("--set-secrets" "$(IFS=,; echo "${SECRET_MAPPINGS[*]}")")
 fi
 
-SERVICE_ACCOUNT_DEFAULT="email-worker-runtime@${PROJECT_ID}.iam.gserviceaccount.com"
+SERVICE_ACCOUNT_DEFAULT="github-actions-sa@${PROJECT_ID}.iam.gserviceaccount.com"
 SERVICE_ACCOUNT=${SERVICE_ACCOUNT:-${SERVICE_ACCOUNT_DEFAULT}}
 
 log_env_summary() {
