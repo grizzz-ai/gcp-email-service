@@ -82,6 +82,7 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          create_credentials_file: true
 
       - name: Setup Google Cloud SDK
         if: steps.check_gcp_auth.outputs.gcp_auth_available == 'true'
@@ -188,6 +189,7 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+          create_credentials_file: true
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
