@@ -10,7 +10,7 @@
   "maxInstances": 10,
   "secrets": [],
   "environmentVariables": {
-    "MAIL_FROM": "no-reply@grizz.ai"
+    "MAIL_FROM": "zzz@grizzz.ai"
   },
   "permissions": [
     {
