@@ -85,8 +85,9 @@ To emulate Pub/Sub events locally:
 # Verification code workflow
 npm run dev -- '{
   "data": {
-    "workflow": "verification-code",
-    "to": "user@example.com",
+    "delivery_id": "test-verification-123",
+    "recipient": "user@example.com",
+    "template": "verification-code",
     "payload": {
       "code": "ABC123",
       "expires_at": "2025-10-10T12:00:00Z"
@@ -97,8 +98,9 @@ npm run dev -- '{
 # Invite workflow
 npm run dev -- '{
   "data": {
-    "workflow": "invite",
-    "to": "newuser@example.com",
+    "delivery_id": "test-invite-456",
+    "recipient": "newuser@example.com",
+    "template": "invite",
     "payload": {
       "inviter_name": "John Doe",
       "invite_url": "https://app.example.com/accept/TOKEN",
@@ -110,8 +112,9 @@ npm run dev -- '{
 # Password reset workflow
 npm run dev -- '{
   "data": {
-    "workflow": "password-reset",
-    "to": "user@example.com",
+    "delivery_id": "test-reset-789",
+    "recipient": "user@example.com",
+    "template": "password-reset",
     "payload": {
       "reset_url": "https://app.example.com/reset/TOKEN",
       "user_name": "Jane Smith"
@@ -119,6 +122,9 @@ npm run dev -- '{
   }
 }'
 ```
+
+**Required fields**: `delivery_id`, `recipient`, `template`
+**Optional fields**: `workflow`, `subject`, `headers`, `payload`, `attachments`
 
 See [workflows/README.md](workflows/README.md) for complete workflow documentation and examples.
 
