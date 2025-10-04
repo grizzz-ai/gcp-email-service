@@ -20,20 +20,36 @@
 - [x] **COMPLETED**: Integration with existing `mail-pass-{env}` GSM secrets.
 - [x] **COMPLETED**: Comprehensive test suite and validation scripts.
 
-### M2 - Delivery Tracking
+### M2 - Workflow Registry and Template System ✅ **COMPLETED**
+- [x] **COMPLETED**: Handlebars template engine with filesystem loading and caching.
+- [x] **COMPLETED**: Workflow registry with dynamic template resolution.
+- [x] **COMPLETED**: Three production workflows: verification-code, invite, password-reset.
+- [x] **COMPLETED**: JSON schemas for payload validation (all workflows).
+- [x] **COMPLETED**: Comprehensive unit tests for all workflows (14 tests).
+- [x] **COMPLETED**: Documentation with examples and workflow creation guide.
+
+### M3 - Delivery Status Tracking and Persistence
 - [ ] Persist delivery status in database (e.g. Cloud SQL / Firestore).
 - [ ] Add status API for querying delivery state.
-- [ ] Implement dead-letter / retry policies.
-- [ ] Add SendGrid provider implementation and fallback logic.
-- [ ] Expose metrics (queue length, success rate, retry count).
+- [ ] Implement dead-letter queue and retry policies.
+- [ ] Add delivery webhook callbacks for status updates.
+- [ ] Expose delivery metrics (success rate, latency, retry count).
 
-### M3 - Workflow Expansion
-- [ ] Template management system (MJML/Handlebars).
+### M4 - Provider Fallback and Observability
+- [ ] Add SendGrid provider implementation.
+- [ ] Implement provider fallback logic (Gmail → SendGrid).
+- [ ] Add provider-specific retry policies.
+- [ ] Expose metrics (queue length, provider health, costs).
+- [ ] Configure alerts for delivery failures and provider issues.
+
+### M5 - Workflow Expansion (Future)
+- [ ] MJML support for advanced email layouts.
+- [ ] Template versioning and A/B testing.
 - [ ] Support report/notification workflows.
 - [ ] Add CLI/admin tooling for ops.
-- [ ] Webhook integration for provider delivery receipts.
+- [ ] Per-tenant template overrides.
 
-### M4 - Messaging Extensions (Future)
+### M6 - Messaging Extensions (Future)
 - [ ] Evaluate SMS/WhatsApp workers using similar pattern.
 - [ ] Add orchestration service for multi-channel notifications.
 
@@ -44,36 +60,47 @@
    - [x] **COMPLETED**: Implement handler + SMTP provider + comprehensive tests.
    - [x] **COMPLETED**: Integration with existing Gmail infrastructure.
 
-2. **#2 Workflow/TEMPLATE structure** ✅ **COMPLETED** (Milestone M1)
-   - [x] **COMPLETED**: Build workflow registry with verification-code workflow.
-   - [x] **COMPLETED**: Schema validation with Zod for email events.
-   - [x] **COMPLETED**: Template rendering for HTML/text with payload substitution.
+2. **#2 Workflow Registry and Template System** ✅ **COMPLETED** (Milestone M2)
+   - [x] **COMPLETED**: Handlebars template engine with filesystem loading.
+   - [x] **COMPLETED**: Three workflows: verification-code, invite, password-reset.
+   - [x] **COMPLETED**: JSON schemas for all workflow payloads.
+   - [x] **COMPLETED**: 14 unit tests covering all workflows.
 
-3. **#3 Infrastructure & Deployment** ✅ **COMPLETED** (Milestone M1)
+3. **#3 Delivery Status Tracking** (Milestone M3)
+   - Choose storage backend, implement persistence, add status API.
+   - Implement dead-letter queue and retry policies.
+
+4. **#4 Provider Fallback** (Milestone M4)
+   - Add SendGrid provider implementation.
+   - Implement fallback logic, metrics, and alerts.
+
+5. **#5 Infrastructure Setup** ✅ **COMPLETED** (Milestone M1)
    - [x] **COMPLETED**: GitHub Actions deployment pipeline for staging/production.
    - [x] **COMPLETED**: Integration with existing Pub/Sub topics and GSM secrets.
    - [x] **COMPLETED**: Service account configuration and IAM bindings.
 
-4. **#4 Delivery tracking persistence** (Milestone M2)
-   - Choose storage backend, implement persistence, add API.
+## 🎯 **M1 & M2 STATUS: COMPLETED & PRODUCTION READY**
 
-5. **#5 Provider Fallback & Observability** (Milestone M2)
-   - Add secondary provider, fallback logic, metrics, alerts.
-
-## 🎯 **M1 MVP STATUS: COMPLETED & PRODUCTION READY**
-
-**Completion Date**: January 2025
+**M1 Completion Date**: January 2025
+**M2 Completion Date**: October 2025
 **Status**: ✅ **Ready for immediate production deployment**
 
-### **Key Achievements**
+### **M1 Key Achievements**
 - **Zero-setup deployment**: Integrated with existing gcp-vc-analyst email infrastructure
 - **Enterprise-grade reliability**: Comprehensive retry logic, timeouts, and error handling
 - **Production CI/CD**: GitHub Actions pipeline with staging/production gates
 - **Comprehensive validation**: Post-deployment tests and runtime fail-safes
 - **Existing infrastructure reuse**: Uses `mail-pass-{env}` GSM secrets and Gmail SMTP
 
+### **M2 Key Achievements**
+- **Handlebars template engine**: Filesystem-based loading with compiled template caching
+- **Three production workflows**: verification-code, invite, password-reset
+- **Extensible architecture**: Easy to add new workflows with schema + templates
+- **14 comprehensive tests**: Full coverage for all workflow rendering paths
+- **Complete documentation**: Examples, schemas, and workflow creation guide
+
 ### **Next Steps**
-1. **Deploy to staging**: `git push origin main`
-2. **Validate staging**: Verify email delivery and monitoring
-3. **Deploy to production**: `git tag v1.0.0 && git push origin v1.0.0`
-4. **Begin M2 planning**: Delivery tracking and provider fallbacks
+1. **Production deployment**: Tag and deploy all workflows to production
+2. **Monitor usage**: Track email delivery metrics for all three workflows
+3. **Begin M3 planning**: Delivery status tracking and persistence layer
+4. **Begin M4 planning**: Provider fallback (SendGrid) and observability

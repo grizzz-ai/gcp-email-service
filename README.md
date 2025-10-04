@@ -6,10 +6,12 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 
 - Pub/Sub triggered function (Gen 2) written in Node.js 22
 - **Uses existing Gmail SMTP infrastructure** from gcp-vc-analyst
-- Template rendering with verification code workflow
+- **Three production workflows**: verification-code, invite, password-reset
+- **Handlebars template engine** with filesystem loading and caching
 - Structured logging with correlation IDs
-- GCS attachment support with size limits
-- Comprehensive retry logic and timeout handling
+- GCS attachment support with size limits and retry logic
+- Comprehensive error handling and timeout management
+- Extensible workflow registry for easy addition of new email types
 
 ## 🔧 **Configuration (Auto-configured)**
 
@@ -41,29 +43,32 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 | `SMTP_MAX_RETRIES` | SMTP retry attempts | 3 |
 | `ATTACHMENT_MAX_RETRIES` | Attachment download retries | 3 |
 
-## 🎯 **M1 MVP Achievements**
+## 🎯 **Project Status: M1 & M2 Completed**
 
-**All M1 requirements successfully implemented and validated:**
-
-### **Core Features Delivered**
+### **M1 MVP - Email Worker** ✅ **COMPLETED**
 - ✅ Pub/Sub triggered Cloud Function (`email-delivery` topic)
-- ✅ Verification code email workflow with HTML/text templates
 - ✅ Gmail SMTP integration using existing infrastructure
 - ✅ Structured logging with correlation IDs
 - ✅ GCS attachment support with size limits and retry logic
 - ✅ Comprehensive error handling and timeout management
-
-### **DevOps & Infrastructure**
 - ✅ GitHub Actions CI/CD pipeline fully operational
 - ✅ Workload Identity Federation (WIF) configured and tested
 - ✅ Integration with existing `mail-pass-{env}` GSM secrets
-- ✅ Post-deployment validation and testing automated
-- ✅ Complete documentation and troubleshooting guides
-- ✅ Chat notifications following organizational standard
+
+### **M2 Workflow Registry** ✅ **COMPLETED**
+- ✅ **Handlebars template engine** with filesystem loading and caching
+- ✅ **Three production workflows**:
+  - `verification-code` - Email verification codes for authentication
+  - `invite` - Team/organization invitation emails
+  - `password-reset` - Secure password reset links
+- ✅ **JSON schemas** for payload validation (all workflows)
+- ✅ **14 comprehensive unit tests** covering all workflows
+- ✅ **Extensible architecture** - easy to add new workflows
+- ✅ **Complete documentation** with examples and creation guide
 
 ### **Production Readiness**
 - ✅ Function deployed and active: `email-worker-staging`
-- ✅ All validation tests passing
+- ✅ All validation tests passing (14/14)
 - ✅ Ready for immediate production deployment
 
 ## Local Development
@@ -77,33 +82,55 @@ npm run test
 To emulate Pub/Sub events locally:
 
 ```bash
+# Verification code workflow
 npm run dev -- '{
   "data": {
-    "delivery_id": "test-123",
-    "type": "verification_code",
-    "recipient": "user@example.com",
-    "template": "verification",
-    "payload": { "code": "123456" },
-    "attachments": [
-      {
-        "type": "gcs",
-        "bucket": "my-bucket",
-        "path": "reports/demo.pdf",
-        "filename": "demo.pdf"
-      }
-    ]
+    "workflow": "verification-code",
+    "to": "user@example.com",
+    "payload": {
+      "code": "ABC123",
+      "expires_at": "2025-10-10T12:00:00Z"
+    }
+  }
+}'
+
+# Invite workflow
+npm run dev -- '{
+  "data": {
+    "workflow": "invite",
+    "to": "newuser@example.com",
+    "payload": {
+      "inviter_name": "John Doe",
+      "invite_url": "https://app.example.com/accept/TOKEN",
+      "organization_name": "Acme Corp"
+    }
+  }
+}'
+
+# Password reset workflow
+npm run dev -- '{
+  "data": {
+    "workflow": "password-reset",
+    "to": "user@example.com",
+    "payload": {
+      "reset_url": "https://app.example.com/reset/TOKEN",
+      "user_name": "Jane Smith"
+    }
   }
 }'
 ```
 
+See [workflows/README.md](workflows/README.md) for complete workflow documentation and examples.
+
 ## 🚀 **Deployment Status**
 
-**✅ M1 MVP COMPLETED & PRODUCTION READY**: Successfully deployed to staging!
+**✅ M1 & M2 COMPLETED & PRODUCTION READY**: Successfully deployed to staging!
 
 ### **Current Status**
 - **Staging Environment**: ✅ **ACTIVE** (`email-worker-staging`)
-- **Function State**: ✅ **DEPLOYED** and **OPERATIONAL** (Build #18230485029)
-- **All Tests**: ✅ **PASSING** (validation, config, secrets)
+- **Workflows Available**: ✅ **3 workflows** (verification-code, invite, password-reset)
+- **Template Engine**: ✅ **Handlebars** with filesystem loading and caching
+- **All Tests**: ✅ **PASSING** (14/14 tests across all workflows)
 - **SMTP Integration**: ✅ **CONFIGURED** with Gmail SMTP
 - **Workload Identity Federation**: ✅ **FULLY CONFIGURED** and operational
 - **CI/CD Pipeline**: ✅ **PASSING** (staging deployment successful)
