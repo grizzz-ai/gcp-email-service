@@ -83,7 +83,7 @@ jobs:
           # Add your specific environment variables here
           SMTP_HOST_VALUE: "smtp.gmail.com"
           SMTP_PORT_VALUE: "587"
-          SMTP_USERNAME_VALUE: "tzhb@grizzz.ai"
+          SMTP_USERNAME_VALUE: "timur.tazhbayev@grizz.miami"
           SMTP_PASSWORD_SECRET: "mail-pass-staging"
         run: ./scripts/deploy-staging.sh
 
@@ -233,7 +233,7 @@ chmod +x scripts/deploy-staging.sh
 - SMTP settings:
   - Host: `smtp.gmail.com`
   - Port: `587`
-  - Username: `tzhb@grizzz.ai`
+  - Username: `timur.tazhbayev@grizz.miami`
 
 ### Database (Supabase)
 - `auth-supabase-project-staging`

@@ -235,11 +235,11 @@ jobs:
           # Output existing secret name for deployment script
           echo "smtp_password_secret=$smtp_password_secret" >> $GITHUB_OUTPUT
 
-          # EXISTING CONFIG: Use gcp-vc-analyst Gmail configuration
-          # Hardcoded values matching existing infrastructure
+          # EXISTING CONFIG: Use existing Gmail configuration
+          # Hardcoded values matching deployment scripts
           echo "smtp_host_value=smtp.gmail.com" >> $GITHUB_OUTPUT
           echo "smtp_port_value=587" >> $GITHUB_OUTPUT
-          echo "smtp_username_value=tzhb@grizzz.ai" >> $GITHUB_OUTPUT
+          echo "smtp_username_value=timur.tazhbayev@grizz.miami" >> $GITHUB_OUTPUT
 
       - name: Deploy email worker to production
         env:

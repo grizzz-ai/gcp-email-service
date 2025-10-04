@@ -41,7 +41,7 @@ M1 Email Worker MVP has been **successfully completed** with all requirements im
 ### **Configuration Validated**
 - **Environment Variables**: ✅ 4 variables (ENVIRONMENT, SMTP settings, PUBSUB_TOPIC)
 - **Secret Bindings**: ✅ 2 secrets (PROJECT_ID, SMTP_PASSWORD)
-- **SMTP Settings**: ✅ Gmail configured (smtp.gmail.com:587, tzhb@grizzz.ai)
+- **SMTP Settings**: ✅ Gmail configured (smtp.gmail.com:587, timur.tazhbayev@grizz.miami)
 - **Authentication**: ✅ Workload Identity Federation working
 
 ### **Test Results**

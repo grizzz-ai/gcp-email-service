@@ -39,7 +39,7 @@ gh secret set WIF_SERVICE_ACCOUNT --body "github-actions-sa@vcapp-443523.iam.gse
 ## Gmail SMTP Settings
 - **Host**: `smtp.gmail.com`
 - **Port**: `587`
-- **Username**: `tzhb@grizzz.ai`
+- **Username**: `timur.tazhbayev@grizz.miami`
 - **Password**: From GSM secret
 
 ## Common Commands

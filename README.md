@@ -17,7 +17,7 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 
 ### Existing Infrastructure
 - **GSM Secrets**: `mail-pass-staging` and `mail-pass-prod` ✅ **Already exist**
-- **Gmail SMTP**: Pre-configured with `tzhb@grizzz.ai`
+- **Gmail SMTP**: Pre-configured with `timur.tazhbayev@grizz.miami`
 - **Deployment Ready**: All secrets and configuration in place
 
 ### Automatically Configured Variables
@@ -26,9 +26,9 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 |----------|-------|--------|
 | `SMTP_HOST` | `smtp.gmail.com` | Hardcoded (Gmail) |
 | `SMTP_PORT` | `587` | Hardcoded (Gmail TLS) |
-| `SMTP_USERNAME` | `tzhb@grizzz.ai` | Hardcoded |
+| `SMTP_USERNAME` | `timur.tazhbayev@grizz.miami` | Hardcoded |
 | `SMTP_PASSWORD` | *secret* | GSM: `mail-pass-{env}` |
-| `MAIL_FROM` | `tzhb@grizzz.ai` | Default |
+| `MAIL_FROM` | `tzhb@grizzz.ai` | Default (can be overridden) |
 
 ### Optional Tuning Variables
 
@@ -144,7 +144,7 @@ gcloud functions deploy email-worker-staging \
   --entry-point=handleEmailEvent \
   --trigger-topic=email-delivery \
   --region=us-central1 \
-  --set-env-vars=SMTP_HOST=smtp.gmail.com,SMTP_PORT=587,SMTP_USERNAME=tzhb@grizzz.ai \
+  --set-env-vars=SMTP_HOST=smtp.gmail.com,SMTP_PORT=587,SMTP_USERNAME=timur.tazhbayev@grizz.miami \
   --set-secrets=SMTP_PASSWORD=mail-pass-staging:latest
 ```
 
