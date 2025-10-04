@@ -5,7 +5,7 @@ const { z } = require("zod");
 const toNumber = (value) => (value === undefined || value === null || value === "" ? undefined : Number(value));
 
 const ConfigSchema = z.object({
-  mailFrom: z.string().trim().min(1).default("tzhb@grizzz.ai"),
+  mailFrom: z.string().trim().min(1).default("zzz@grizzz.ai"),
   smtpHost: z.string().trim().optional(),
   smtpPort: z.preprocess(toNumber, z.number().int().positive().optional()),
   smtpUsername: z.string().trim().optional(),

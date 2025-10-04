@@ -28,7 +28,7 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 | `SMTP_PORT` | `587` | Hardcoded (Gmail TLS) |
 | `SMTP_USERNAME` | `timur.tazhbayev@grizz.miami` | Hardcoded |
 | `SMTP_PASSWORD` | *secret* | GSM: `mail-pass-{env}` |
-| `MAIL_FROM` | `tzhb@grizzz.ai` | Default (can be overridden) |
+| `MAIL_FROM` | `zzz@grizzz.ai` | Default (can be overridden) |
 
 ### Optional Tuning Variables
 
