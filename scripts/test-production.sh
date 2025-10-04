@@ -103,6 +103,19 @@ fi
 
 echo "✅ All production SMTP configuration verified (3 env vars + 1 secret)"
 
+# Verify all required secrets are bound
+REQUIRED_SECRETS=("PROJECT_ID" "SMTP_PASSWORD" "DELIVERY_STATUS_DATABASE_URL")
+MISSING_SECRETS=()
+for secret in "${REQUIRED_SECRETS[@]}"; do
+  if [[ "${FUNCTION_SECRETS}" != *"${secret}"* ]]; then
+    MISSING_SECRETS+=("${secret}")
+  fi
+done
+
+if [[ ${#MISSING_SECRETS[@]} -gt 0 ]]; then
+  echo "⚠️  Missing optional secret bindings: ${MISSING_SECRETS[*]}"
+fi
+
 # Test 5: Verify function resources for production load
 echo "🔍 Test 5: Production resource configuration"
 FUNCTION_MEMORY=$(gcloud functions describe "${DEPLOYMENT_NAME}" \
