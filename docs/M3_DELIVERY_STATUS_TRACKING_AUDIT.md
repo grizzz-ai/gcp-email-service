@@ -66,41 +66,41 @@ createStatusTracker({ config, logger })
 - **Zero impact**: Email delivery continues normally regardless of tracker state
 
 #### **Lifecycle Event Tracking**
-Six state transitions defined (4 currently wired, 2 reserved for future):
+Six state transitions defined (5 currently wired, 1 reserved for future):
 
-**Currently Wired (4):**
+**Currently Wired (5):**
 
 1. **`recordQueued()`** ✅ **ACTIVE**
-   - Called by: `src/email-worker.js` on event receipt
+   - Called by: `src/email-worker.js:50` on event receipt
    - Records: `delivery_id`, `workflow`, `recipient`, `metadata`
    - Status: `queued`
    - Timestamp: `queued_at`
 
 2. **`markInProgress()`** ✅ **ACTIVE**
-   - Called by: `src/providers/smtp-provider.js` before send attempt
+   - Called by: `src/providers/smtp-provider.js:45` before send attempt
    - Increments: `attempts`
    - Status: `in_progress`
    - Clears: Previous error fields
 
-3. **`markSent()`** ✅ **ACTIVE**
-   - Called by: `src/providers/smtp-provider.js` after successful delivery
+3. **`markRetrying()`** ✅ **ACTIVE**
+   - Called by: `src/providers/smtp-provider.js:96` in onRetry callback
+   - Status: `retrying`
+   - Records: `last_error_code`, `last_error_message`
+   - Increments: `attempts`
+
+4. **`markSent()`** ✅ **ACTIVE**
+   - Called by: `src/providers/smtp-provider.js:73` after successful delivery
    - Status: `sent`
    - Timestamp: `sent_at`
    - Clears: Error fields
 
-4. **`markFailed()`** ✅ **ACTIVE**
-   - Called by: `src/email-worker.js` on final failure
+5. **`markFailed()`** ✅ **ACTIVE**
+   - Called by: `src/email-worker.js:99` on final failure
    - Status: `failed`
    - Records: Error details
    - Final state for delivery
 
-**Reserved for Future (2):**
-
-5. **`markRetrying()`** 📋 **NOT YET WIRED**
-   - Will be called by: SMTP provider retry logic (M4)
-   - Status: `retrying`
-   - Records: `last_error_code`, `last_error_message`
-   - Increments: `attempts`
+**Reserved for Future (1):**
 
 6. **`markDeadLetter()`** 📋 **NOT YET WIRED**
    - Will be called by: Dead-letter queue handler (M4)
@@ -418,9 +418,9 @@ Once database is active, expose:
 ### **Phase 1: Application Layer** ✅ COMPLETED
 
 - [x] Status tracker module implemented (181 lines)
-- [x] 4 lifecycle methods wired (queued, in_progress, sent, failed)
-- [x] 2 lifecycle methods defined for future (retrying, dead_letter)
-- [x] Integration with SMTP provider (markInProgress, markSent)
+- [x] 5 lifecycle methods wired (queued, in_progress, retrying, sent, failed)
+- [x] 1 lifecycle method defined for future (dead_letter)
+- [x] Integration with SMTP provider (markInProgress, markRetrying, markSent)
 - [x] Integration with email worker (recordQueued, markFailed)
 - [x] Configuration schema updated (statusDatabaseUrl)
 - [x] Test coverage added (2 tests for core scenarios)
@@ -488,16 +488,16 @@ Once database is active, expose:
 
 **Key Achievements:**
 - ✅ Core status tracking infrastructure (181 lines)
-- ✅ 4 lifecycle methods wired and active (queued, in_progress, sent, failed)
+- ✅ 5 lifecycle methods wired and active (queued, in_progress, retrying, sent, failed)
 - ✅ Zero-impact deployment (graceful degradation)
 - ✅ Test coverage for critical paths (2 new tests, 16 total passing)
 - ✅ Comprehensive documentation for Supabase team
 - ✅ Ready for immediate production deployment
 
 **Future Work (M4):**
-- 📋 Wire `markRetrying()` into SMTP retry logic
 - 📋 Wire `markDeadLetter()` into dead-letter queue handler
 - 📋 Expand test coverage once database is active
+- 📋 Implement status query API for delivery lookups
 
 **Blocking Dependencies:**
 - ⏳ Database schema migration (Supabase team)
