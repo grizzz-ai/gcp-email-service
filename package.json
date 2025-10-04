@@ -13,7 +13,8 @@
     "test": "npm run test:unit",
     "test:unit": "jest --runInBand",
     "test:integration": "npm run test:unit",
-    "dev": "node scripts/emit-test-event.js"
+    "dev": "node scripts/emit-test-event.js",
+    "status": "node scripts/status-cli.js"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^5.2.0",

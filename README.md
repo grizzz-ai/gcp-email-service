@@ -127,6 +127,17 @@ npm run dev -- '{
 }'
 ```
 
+## Delivery Status CLI
+
+When the Supabase schema is available and `DELIVERY_STATUS_DATABASE_URL` is configured, you can inspect delivery records directly:
+
+```bash
+# Fetch delivery status by ID
+DELIVERY_STATUS_DATABASE_URL="postgres://user:pass@host:5432/db" npm run status -- test-verification-123
+```
+
+If the environment variable is unset, the CLI reports that tracking is disabled and exits cleanly without querying the database.
+
 **Required fields**: `delivery_id`, `recipient`, `template`
 **Optional fields**: `workflow`, `subject`, `headers`, `payload`, `attachments`
 

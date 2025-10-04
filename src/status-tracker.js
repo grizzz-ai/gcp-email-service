@@ -2,6 +2,10 @@
 
 const { Pool } = require("pg");
 
+function resolveStatusDatabaseUrl(config = {}) {
+  return config.statusDatabaseUrl || process.env.DELIVERY_STATUS_DATABASE_URL || null;
+}
+
 function createNoopTracker(logger) {
   const trackerLogger = logger.child({ component: "status-tracker" });
   trackerLogger.info("Email status tracking disabled (no database connection configured)");
@@ -37,7 +41,7 @@ function extractErrorDetails(error) {
 }
 
 function createStatusTracker({ config, logger }) {
-  const connectionString = config.statusDatabaseUrl || process.env.DELIVERY_STATUS_DATABASE_URL;
+  const connectionString = resolveStatusDatabaseUrl(config);
 
   if (!connectionString) {
     return createNoopTracker(logger);
@@ -176,6 +180,6 @@ function createStatusTracker({ config, logger }) {
 }
 
 module.exports = {
-  createStatusTracker
+  createStatusTracker,
+  resolveStatusDatabaseUrl
 };
-
