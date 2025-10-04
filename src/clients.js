@@ -7,6 +7,7 @@ const { createSmtpProvider } = require("./providers/smtp-provider");
 const { createWorkflowRegistry } = require("./workflows");
 const { retryWithBackoff } = require("./utils/retry");
 const { withTimeout } = require("./utils/timeout");
+const { createStatusTracker } = require("./status-tracker");
 
 let cachedContext;
 
@@ -27,8 +28,10 @@ function initialiseEmailService() {
     withTimeout
   };
 
-  const provider = createSmtpProvider(dependencies);
-  const workflows = createWorkflowRegistry(dependencies);
+  const statusTracker = createStatusTracker({ config, logger });
+
+  const provider = createSmtpProvider({ ...dependencies, statusTracker });
+  const workflows = createWorkflowRegistry({ ...dependencies, statusTracker });
 
   logger.info(
     {
@@ -46,7 +49,8 @@ function initialiseEmailService() {
     provider,
     workflows,
     retryWithBackoff,
-    withTimeout
+    withTimeout,
+    statusTracker
   };
 
   return cachedContext;

@@ -25,25 +25,39 @@ function decodeMessage(message) {
 
 exports.handleEmailEvent = async (message, context) => {
   const serviceContext = getEmailServiceContext();
-  const { logger, provider, workflows } = serviceContext;
+  const { logger, provider, workflows, statusTracker } = serviceContext;
 
   const eventId = context?.eventId || `email-${Date.now()}`;
   const correlationId = generateCorrelationId();
   const eventLog = logger.child({ eventId, correlationId });
 
+  let payload;
+  let workflowKey;
+
   try {
     const decoded = decodeMessage(message);
-    const payload = parseEmailEvent(decoded);
+    payload = parseEmailEvent(decoded);
 
     eventLog.debug({ payload }, "Received email event");
 
-    const workflowKey = payload.workflow || payload.template;
+    workflowKey = payload.workflow || payload.template;
     const workflow = workflows.get(workflowKey);
     if (!workflow) {
       const error = new Error(`Unsupported workflow/template: ${workflowKey}`);
       error.code = "UNKNOWN_WORKFLOW";
       throw error;
     }
+    await statusTracker.recordQueued?.({
+      deliveryId: payload.delivery_id,
+      workflow: workflowKey,
+      recipient: payload.recipient,
+      metadata: {
+        template: payload.template,
+        workflow: workflowKey,
+        has_attachments: Array.isArray(payload.attachments) && payload.attachments.length > 0,
+        payload_keys: Object.keys(payload.payload || {})
+      }
+    });
 
     const prepared = await workflow.prepareEmail({
       template: payload.template,
@@ -72,16 +86,20 @@ exports.handleEmailEvent = async (message, context) => {
       "Email processed successfully"
     );
   } catch (error) {
-    eventLog.error(
-      {
-        error: error.message,
-        code: error.code,
-        eventId,
-        correlationId,
-        stack: error.stack
-      },
-      "Email event processing failed"
-    );
+      eventLog.error(
+        {
+          error: error.message,
+          code: error.code,
+          eventId,
+          correlationId,
+          stack: error.stack
+        },
+        "Email event processing failed"
+      );
+      await statusTracker.markFailed?.({
+        deliveryId: payload?.delivery_id,
+        error
+      });
     throw error;
   }
 };

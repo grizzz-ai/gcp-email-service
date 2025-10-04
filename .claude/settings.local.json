@@ -16,7 +16,13 @@
       "Bash(git push:*)",
       "Bash(gh issue list:*)",
       "Bash(gcloud iam service-accounts:*)",
-      "Bash(gcloud projects get-iam-policy:*)"
+      "Bash(gcloud projects get-iam-policy:*)",
+      "Bash(gcloud logging read:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue close:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

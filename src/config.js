@@ -10,6 +10,7 @@ const ConfigSchema = z.object({
   smtpPort: z.preprocess(toNumber, z.number().int().positive().optional()),
   smtpUsername: z.string().trim().optional(),
   smtpPassword: z.string().trim().optional(),
+  statusDatabaseUrl: z.string().trim().optional(),
   enableDebugLogs: z
     .union([z.string(), z.boolean()])
     .optional()

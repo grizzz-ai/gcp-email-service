@@ -8,6 +8,7 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 - **Uses existing Gmail SMTP infrastructure** from gcp-vc-analyst
 - **Three production workflows**: verification-code, invite, password-reset
 - **Handlebars template engine** with filesystem loading and caching
+- Optional delivery status tracking via Supabase business database
 - Structured logging with correlation IDs
 - GCS attachment support with size limits and retry logic
 - Comprehensive error handling and timeout management
@@ -42,6 +43,9 @@ Node.js 22 Cloud Function for handling asynchronous email delivery events. This 
 | `SMTP_SEND_TIMEOUT_MS` | SMTP send timeout | 10000ms |
 | `SMTP_MAX_RETRIES` | SMTP retry attempts | 3 |
 | `ATTACHMENT_MAX_RETRIES` | Attachment download retries | 3 |
+| `DELIVERY_STATUS_DATABASE_URL` | Supabase business DB connection string for persisting delivery status | *(unset → tracking disabled)* |
+
+If `DELIVERY_STATUS_DATABASE_URL` is not provided, the service logs that status tracking is disabled and continues operating without touching the database. Once the Supabase migrations are live, add the connection string via GSM secrets to enable persistence automatically.
 
 ## 🎯 **Project Status: M1 & M2 Completed**
 

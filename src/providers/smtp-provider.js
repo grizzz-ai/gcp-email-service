@@ -21,7 +21,7 @@ function isRetryableSmtpError(error) {
   return false;
 }
 
-function createSmtpProvider({ config, logger, retryWithBackoff, withTimeout }) {
+function createSmtpProvider({ config, logger, retryWithBackoff, withTimeout, statusTracker }) {
   const transporter = nodemailer.createTransport({
     host: config.smtpHost,
     port: config.smtpPort,
@@ -41,6 +41,9 @@ function createSmtpProvider({ config, logger, retryWithBackoff, withTimeout }) {
       const metadata = { deliveryId, recipient, correlationId };
 
       const attemptSend = async (attempt) => {
+        if (statusTracker?.markInProgress) {
+          await statusTracker.markInProgress({ deliveryId, attempt });
+        }
         const start = Date.now();
         providerLogger.debug({ ...metadata, attempt }, "Sending email via SMTP");
 
@@ -66,6 +69,9 @@ function createSmtpProvider({ config, logger, retryWithBackoff, withTimeout }) {
 
           const latencyMs = Date.now() - start;
           providerLogger.info({ ...metadata, latencyMs, attempt }, "Email delivered successfully");
+          if (statusTracker?.markSent) {
+            await statusTracker.markSent({ deliveryId, attempt, latencyMs });
+          }
           return response;
         } catch (error) {
           providerLogger.warn({ ...metadata, attempt, error: error.message }, "SMTP send attempt failed");
@@ -84,8 +90,11 @@ function createSmtpProvider({ config, logger, retryWithBackoff, withTimeout }) {
           }
           return retryable;
         },
-        onRetry: (error, attempt, delay) => {
+        onRetry: async (error, attempt, delay) => {
           providerLogger.warn({ ...metadata, attempt, delayMs: delay, error: error.message }, "Retrying email delivery");
+          if (statusTracker?.markRetrying) {
+            await statusTracker.markRetrying({ deliveryId, attempt, error });
+          }
         }
       });
     }
