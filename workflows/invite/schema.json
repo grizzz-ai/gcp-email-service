@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.grizz.ai/workflows/invite.json",
+  "title": "Invite Email Payload",
+  "type": "object",
+  "required": ["inviter_name", "invite_url"],
+  "properties": {
+    "inviter_name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the person sending the invite"
+    },
+    "invite_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL for accepting the invitation"
+    },
+    "organization_name": {
+      "type": "string",
+      "description": "Optional organization name"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when invite expires"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Optional override for email subject"
+    }
+  }
+}

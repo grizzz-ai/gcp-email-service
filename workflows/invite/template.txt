@@ -1,0 +1,8 @@
+{{inviter_name}} has invited you{{#if organization_name}} to join {{organization_name}}{{/if}}.
+
+Accept the invitation: {{invite_url}}
+{{#if expires_at}}
+This invitation expires at {{expires_at}}.
+{{/if}}
+
+If you did not expect this invitation, you can safely ignore this email.

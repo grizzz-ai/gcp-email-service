@@ -1,0 +1,8 @@
+{{#if user_name}}<p>Hi {{user_name}},</p>{{/if}}
+<p>We received a request to reset your password.</p>
+<p>Click the link below to reset your password:</p>
+<p><a href="{{reset_url}}">Reset Password</a></p>
+{{#if expires_at}}
+<p>This link expires at {{expires_at}}.</p>
+{{/if}}
+<p>If you did not request a password reset, please ignore this email or contact support if you have concerns.</p>

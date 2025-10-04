@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.grizz.ai/workflows/password-reset.json",
+  "title": "Password Reset Email Payload",
+  "type": "object",
+  "required": ["reset_url"],
+  "properties": {
+    "reset_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL for resetting the password"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when reset link expires"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Optional user name for personalization"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Optional override for email subject"
+    }
+  }
+}

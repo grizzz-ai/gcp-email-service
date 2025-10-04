@@ -1,0 +1,7 @@
+<p><strong>{{inviter_name}}</strong> has invited you{{#if organization_name}} to join <strong>{{organization_name}}</strong>{{/if}}.</p>
+<p>Click the link below to accept the invitation:</p>
+<p><a href="{{invite_url}}">Accept Invitation</a></p>
+{{#if expires_at}}
+<p>This invitation expires at {{expires_at}}.</p>
+{{/if}}
+<p>If you did not expect this invitation, you can safely ignore this email.</p>
