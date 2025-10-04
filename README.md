@@ -138,6 +138,27 @@ DELIVERY_STATUS_DATABASE_URL="postgres://user:pass@host:5432/db" npm run status 
 
 If the environment variable is unset, the CLI reports that tracking is disabled and exits cleanly without querying the database.
 
+## HTTP Status API (optional)
+
+The project exports an HTTP handler at `src/status-api.js` (`statusApi`) that exposes the same queries over REST. Deploy it as a separate Cloud Function/Run service when you are ready:
+
+```bash
+gcloud functions deploy email-status-api \
+  --gen2 \
+  --runtime=nodejs22 \
+  --entry-point=statusApi \
+  --trigger-http \
+  --region=us-central1
+```
+
+Endpoints:
+
+- `GET /deliveries/:id` → single delivery record (404 if not found)
+- `GET /deliveries` → latest deliveries (`?limit=50` optional)
+- `GET /deliveries?recipient=user@example.com` → deliveries for a specific email address
+
+Responses mirror the CLI output and return `503 status_tracking_disabled` when the database connection is not configured.
+
 **Required fields**: `delivery_id`, `recipient`, `template`
 **Optional fields**: `workflow`, `subject`, `headers`, `payload`, `attachments`
 
