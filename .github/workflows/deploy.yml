@@ -218,30 +218,8 @@ jobs:
             echo "chat_webhook=$chat_webhook" >> $GITHUB_OUTPUT
           fi
 
-          # EXISTING INFRASTRUCTURE: Use existing mail-pass secrets from gcp-vc-analyst
-          echo "🔐 Fetching existing SMTP password secret for production..."
-
-          # Use existing mail-pass secret pattern: mail-pass-{env}
-          smtp_password_secret="mail-pass-prod"
-
-          set +e
-          if gcloud secrets describe mail-pass-prod >/dev/null 2>&1; then
-            echo "✅ Found existing production SMTP password secret: $smtp_password_secret"
-          else
-            echo "❌ PRODUCTION DEPLOYMENT BLOCKED: Missing existing SMTP password secret: mail-pass-prod"
-            echo "   This secret should already exist from gcp-vc-analyst infrastructure"
-            exit 1
-          fi
-          set -e
-
-          # Output existing secret name for deployment script
-          echo "smtp_password_secret=$smtp_password_secret" >> $GITHUB_OUTPUT
-
-          # EXISTING CONFIG: Use existing Gmail configuration
-          # Hardcoded values matching deployment scripts
-          echo "smtp_host_value=smtp.gmail.com" >> $GITHUB_OUTPUT
-          echo "smtp_port_value=587" >> $GITHUB_OUTPUT
-          echo "smtp_username_value=timur.tazhbayev@grizz.miami" >> $GITHUB_OUTPUT
+          # SMTP secrets are now hardcoded in deployment scripts
+          echo "secrets_available=true" >> $GITHUB_OUTPUT
 
       - name: Deploy email worker to production
         env:
@@ -250,11 +228,7 @@ jobs:
           BUILD_ID: ${{ github.run_id }}
           REPO_NAME: ${{ github.repository }}
           TAG_NAME: ${{ github.ref_name }}
-          # OPTIMIZED: Pass SMTP configuration (password via GSM, others via env vars)
-          SMTP_HOST_VALUE: ${{ steps.get_secrets.outputs.smtp_host_value }}
-          SMTP_PORT_VALUE: ${{ steps.get_secrets.outputs.smtp_port_value }}
-          SMTP_USERNAME_VALUE: ${{ steps.get_secrets.outputs.smtp_username_value }}
-          SMTP_PASSWORD_SECRET: ${{ steps.get_secrets.outputs.smtp_password_secret }}
+          # SMTP configuration is now hardcoded in deployment scripts
         run: |
           chmod +x ./scripts/deploy-production.sh
           ./scripts/deploy-production.sh
