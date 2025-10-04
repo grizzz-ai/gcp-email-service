@@ -90,6 +90,8 @@ M1 Email Worker MVP has been **successfully completed** with all requirements im
 - [**WIF_SETUP.md**](./WIF_SETUP.md): Comprehensive WIF setup guide
 - [**DEPLOYMENT_TEMPLATE.md**](./DEPLOYMENT_TEMPLATE.md): Copy-paste templates
 - [**QUICK_REFERENCE.md**](./QUICK_REFERENCE.md): 2-minute setup guide
+- [**DEPLOYMENT_SUCCESS_AUDIT.md**](./DEPLOYMENT_SUCCESS_AUDIT.md): WIF troubleshooting audit
+- [**CONFIGURATION_ALIGNMENT.md**](./CONFIGURATION_ALIGNMENT.md): SMTP configuration alignment
 
 ### **For Other Repositories**
 - **3 Complete Documentation Files**: Setup guides for replicating infrastructure
