@@ -108,7 +108,7 @@ function createVerificationWorkflow({ config, storage, logger, retryWithBackoff,
     }
 
     return {
-      subject: payload.subject || rendered.subject,
+      subject: payload.subject || rendered.subject || "Your verification code",
       html: rendered.html,
       text: rendered.text,
       attachments: processedAttachments
