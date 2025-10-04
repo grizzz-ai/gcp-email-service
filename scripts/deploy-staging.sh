@@ -78,10 +78,11 @@ ENV_VARS+=("SMTP_HOST=smtp.gmail.com")
 ENV_VARS+=("SMTP_PORT=587")
 ENV_VARS+=("SMTP_USERNAME=timur.tazhbayev@grizz.miami")
 
-# OPTIMIZED: PROJECT_ID and SMTP password via GSM secrets (sensitive)
+# OPTIMIZED: PROJECT_ID, SMTP password, and database URL via GSM secrets (sensitive)
 SECRET_MAPPINGS=(
   "PROJECT_ID=project-id-staging:latest"
   "SMTP_PASSWORD=mail-pass-staging:latest"
+  "DELIVERY_STATUS_DATABASE_URL=supabase-db-url-staging:latest"
 )
 if [[ -n "${MAIL_FROM_SECRET:-}" ]]; then
   SECRET_MAPPINGS+=("MAIL_FROM=${MAIL_FROM_SECRET}:latest")

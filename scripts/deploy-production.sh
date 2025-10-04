@@ -55,10 +55,11 @@ ENV_VARS+=("SMTP_HOST=smtp.gmail.com")
 ENV_VARS+=("SMTP_PORT=587")
 ENV_VARS+=("SMTP_USERNAME=timur.tazhbayev@grizz.miami")
 
-# OPTIMIZED: PROJECT_ID and SMTP password via GSM secrets (sensitive)
+# OPTIMIZED: PROJECT_ID, SMTP password, and database URL via GSM secrets (sensitive)
 SECRET_MAPPINGS=(
   "PROJECT_ID=project-id-production:latest"
   "SMTP_PASSWORD=mail-pass-prod:latest"
+  "DELIVERY_STATUS_DATABASE_URL=supabase-db-url-production:latest"
 )
 
 # Optional secrets
@@ -120,4 +121,4 @@ EOF_REPORT
 
 echo "✅ Production deployment completed"
 echo "🔗 Function URL: ${FUNCTION_URL:-unavailable}"
-echo "📊 Secrets mapped: ${#SECRET_MAPPINGS[@]}/4 required SMTP secrets"
+echo "📊 Secrets mapped: ${#SECRET_MAPPINGS[@]}"

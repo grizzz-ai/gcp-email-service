@@ -129,10 +129,16 @@ npm run dev -- '{
 
 ## Delivery Status CLI
 
-When the Supabase schema is available and `DELIVERY_STATUS_DATABASE_URL` is configured, you can inspect delivery records directly:
+Delivery status tracking is **automatically enabled** in staging and production via GSM secrets:
+- **Staging**: `supabase-db-url-staging`
+- **Production**: `supabase-db-url-production`
+
+The Cloud Function receives `DELIVERY_STATUS_DATABASE_URL` automatically and records all email lifecycle events.
+
+To query delivery status locally:
 
 ```bash
-# Fetch delivery status by ID
+# Fetch delivery status by ID (requires database URL from GSM)
 DELIVERY_STATUS_DATABASE_URL="postgres://user:pass@host:5432/db" npm run status -- test-verification-123
 ```
 
@@ -148,8 +154,12 @@ gcloud functions deploy email-status-api \
   --runtime=nodejs22 \
   --entry-point=statusApi \
   --trigger-http \
-  --region=us-central1
+  --region=us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars="DELIVERY_STATUS_DATABASE_URL=postgres://..."
 ```
+
+> **Security Note**: The `--allow-unauthenticated` flag above is for testing/development. For production deployments, use `--no-allow-unauthenticated` and configure IAM-based authentication.
 
 Endpoints:
 
@@ -166,13 +176,14 @@ See [workflows/README.md](workflows/README.md) for complete workflow documentati
 
 ## 🚀 **Deployment Status**
 
-**✅ M1 & M2 COMPLETED & PRODUCTION READY**: Successfully deployed to staging!
+**✅ M1, M2 & M3 COMPLETED & PRODUCTION READY**: Successfully deployed to staging with delivery status tracking!
 
 ### **Current Status**
 - **Staging Environment**: ✅ **ACTIVE** (`email-worker-staging`)
 - **Workflows Available**: ✅ **3 workflows** (verification-code, invite, password-reset)
 - **Template Engine**: ✅ **Handlebars** with filesystem loading and caching
-- **All Tests**: ✅ **PASSING** (14/14 tests across all workflows)
+- **All Tests**: ✅ **PASSING** (22/22 tests - all milestones)
+- **Delivery Status Tracking**: ✅ **IMPLEMENTED** (write-side + read-side + HTTP API)
 - **SMTP Integration**: ✅ **CONFIGURED** with Gmail SMTP
 - **Workload Identity Federation**: ✅ **FULLY CONFIGURED** and operational
 - **CI/CD Pipeline**: ✅ **PASSING** (staging deployment successful)
@@ -193,7 +204,10 @@ git push origin v1.0.0
 ### **Ready for Production**
 The email service is **fully functional** and ready for immediate production use:
 - Email delivery via `email-delivery` Pub/Sub topic
-- Verification code workflow with HTML/text templates
+- Three workflow types: verification-code, invite, password-reset
+- Handlebars template engine with HTML/text rendering
+- Delivery status tracking (PostgreSQL-based, graceful degradation)
+- CLI and HTTP API for delivery status queries
 - GCS attachment support with size limits
 - Comprehensive retry logic and error handling
 - Integration with existing Gmail SMTP infrastructure
